@@ -51,6 +51,9 @@ def parse_arguments():
     parser.add_argument('-p', '--password', dest='password',
                         help='password to use for mongodb authentication',
                         default=None)
+    parser.add_argument('--sslCAFile', dest='sslCAFile',
+                        help=' Amazon DocumentDB Certificate Authority (CA) certificate required to authenticate to your cluster',
+                        default=None)
     parser.add_argument('--shard', dest='shard',
                         help='Specify shard cluster the test should use, 0 - no shard, 1 - shard with {_id: hashed}, 2 - shard with {_id: 1}',
                         type=int, default=0, choices=[0, 1, 2])
@@ -159,7 +162,10 @@ def main():
             args.includeFilter = '%'
 
     if args.username:
-        auth = ["-u", args.username, "-p", args.password, "--authenticationDatabase", "admin"]
+        if args.sslCAFile:
+            auth = ["-u", args.username, "-p", args.password, "--ssl", "--sslCAFile", args.sslCAFile, "--authenticationDatabase", "admin"]
+        else:        
+            auth = ["-u", args.username, "-p", args.password, "--authenticationDatabase", "admin"]
     else:
         auth = []
 
